@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-
+#Проверка на БП
 def isBP(path):
     if  os.path.isfile(path):
         return False
@@ -25,6 +25,7 @@ def isBP(path):
 
     return False;
 
+#Получение описания (любой папки)
 def getDescription(path):
     descrition = "";
     try:
@@ -35,6 +36,7 @@ def getDescription(path):
         pass;
     return descrition;
         
+#Получение списка всех фото в папке
 def getAllPhoto(path):
     result = [];
     listDir = os.listdir(path);
@@ -43,6 +45,7 @@ def getAllPhoto(path):
             result.append(path+"/"+photoName);
     return result;
 
+#обход на папок с фото у БП
 def getListpath(path):
     result = [];
     listDir = os.listdir(path);
@@ -60,6 +63,7 @@ def getListpath(path):
             pass;
     return result;
 
+#Генерация БП
 def genBP(name,path):
     Listpath = getListpath(path+"/"+name);
     item = {
@@ -70,6 +74,8 @@ def genBP(name,path):
         }
     return item;
 
+
+#Генерация списка BP
 def generateBPListSite(path):
     result = []
     listDir = os.listdir(path);
@@ -78,6 +84,7 @@ def generateBPListSite(path):
     a = 0;
     return result;
 
+#Проверка на наличие хотя бы одного БП
 def hasBP(path):
     listDir = os.listdir(path)
     for newPath in listDir:
@@ -85,6 +92,7 @@ def hasBP(path):
             return True;
     return False;
 
+#поиск внутреннего фото для папки (доджно иметь такое же название)
 def findImage(item, path):
     listDir = os.listdir(path+"/"+item);
     for imageName in listDir:
@@ -92,6 +100,7 @@ def findImage(item, path):
             return "/image/"+path+"/"+item+"/"+imageName;
     return None;
 
+#генерирует узел, внутри которого БП-ы
 def generateBP(name, path):
     urlImage = findImage(name,path);
     listSite = generateBPListSite(path+"/"+name);
@@ -103,6 +112,7 @@ def generateBP(name, path):
         }
     return result;
 
+#Генерирует узел, которые не является БП
 def generateNBP(name, path):
     tempList = [];
     item = {
@@ -113,6 +123,7 @@ def generateNBP(name, path):
         }
     return item;
 
+#определения типа вложенных папок (пка имеет БП или нет)
 def generateJSON(path,iList):
 
     listDir = os.listdir(path)
@@ -123,7 +134,7 @@ def generateJSON(path,iList):
             iList.append(generateNBP(item, path))
     return iList;
 
-
+#начало построения дерева алгоритмом обхода в глубину 
 @app.route('/dir/<path>')
 def get_path(path):
     json = []
@@ -131,12 +142,13 @@ def get_path(path):
     return jsonify(result)
 
 
-
+#отправка изображения по запросу
 @app.route('/image/<path:filename>')
 def get_image(filename):
 
     return send_file(filename, mimetype = 'image/gif');
 
+#сохранение изображения по запросу
 @app.route('/imageset/<path:filePath>', methods=['GET', 'POST'])
 def set_image(filePath):
     path = "";
